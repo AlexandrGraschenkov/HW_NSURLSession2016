@@ -9,7 +9,7 @@
 #import "ViewController.h"
 @import MediaPlayer;
 
-@interface ViewController () <NSURLSessionDelegate>
+@interface ViewController () <NSURLSessionDelegate, NSURLSessionDownloadDelegate>
 {
     NSURLSession *session;
     NSURLSessionDownloadTask *downloadTask;
@@ -25,6 +25,8 @@
 
 @implementation ViewController
 
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -34,7 +36,7 @@
     player.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.videoView addSubview:player.view];
     
-    session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+    session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
 }
 
 - (NSString *)getDownloadPath {
@@ -44,7 +46,8 @@
 
 - (IBAction)startDownload {
     NSURL *url = [NSURL URLWithString:@"https://dl.dropboxusercontent.com/u/55523423/video.mov"];
-    // todo
+    downloadTask = [session downloadTaskWithURL:url];
+    [downloadTask resume];
 }
 
 - (IBAction)pauseDownload {
@@ -56,7 +59,39 @@
 }
 
 - (IBAction)playVideo:(id)sender {
-    // todo
+    player.
+//    player.contentURL =[NSURL URLWithString: @"https://dl.dropboxusercontent.com/u/55523423/video.mov"];
+    [player play];
 }
+
+-(void)URLSession:(NSURLSession *)session
+             downloadTask:(NSURLSessionDownloadTask *)downloadTask
+didFinishDownloadingToURL:(NSURL *)location {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSFileManager *manager = [NSFileManager defaultManager];
+        NSData *videoData = [NSData dataWithContentsOfURL:location];
+        NSString *downloadPath = [self getDownloadPath];
+        if ([manager fileExistsAtPath:downloadPath]){
+            [manager createFileAtPath:downloadPath contents:videoData attributes:nil];
+        }else {
+            [manager createDirectoryAtPath:downloadPath withIntermediateDirectories:NO attributes:nil error:nil];
+            [manager createFileAtPath:downloadPath contents:videoData attributes:nil];
+        }
+    });
+}
+
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes {
+    
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    float progress = (double)totalBytesWritten / (double)totalBytesExpectedToWrite;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.progressView.progress = progress;
+    });
+}
+
 
 @end
