@@ -1,0 +1,37 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "7379B9AF655A3132075DA3A551D15939BA1774D4",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "F444530EA05E325E3E0562A78342DBBE68A6AD27" : 0,
+    "66F677A90FC50DCAFA27B0DC1A4C81A758C7D950" : 0,
+    "7379B9AF655A3132075DA3A551D15939BA1774D4" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "F77ECBAD-638E-458F-883D-EE387A0216BA",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "F444530EA05E325E3E0562A78342DBBE68A6AD27" : "",
+    "66F677A90FC50DCAFA27B0DC1A4C81A758C7D950" : "..",
+    "7379B9AF655A3132075DA3A551D15939BA1774D4" : "HW_NSURLSession2016\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "TestVideoDownloader",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "TestVideoDownloader.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/bitbucket.org\/Timofeeva_11-405\/timofeevam_11-405.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "66F677A90FC50DCAFA27B0DC1A4C81A758C7D950"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/MariMiMari\/HW_NSURLSession2016.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7379B9AF655A3132075DA3A551D15939BA1774D4"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/bitbucket.org\/Timofeeva_11-405\/projects.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F444530EA05E325E3E0562A78342DBBE68A6AD27"
+    }
+  ]
+}
