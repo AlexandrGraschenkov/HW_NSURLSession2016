@@ -21,20 +21,38 @@
 @property (nonatomic, weak) IBOutlet UIButton *deleteButt;
 @property (nonatomic, weak) IBOutlet UIProgressView *progressView;
 @property (nonatomic, weak) IBOutlet UIView *videoView;
+
+@property NSURL *videoURL;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     player = [[MPMoviePlayerController alloc] init];
     player.controlStyle = MPMovieControlStyleEmbedded;
     player.view.frame = self.videoView.bounds;
     player.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.videoView addSubview:player.view];
-    
     session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+    NSFileManager *manager = [NSFileManager defaultManager];
+    if ([manager fileExistsAtPath:[self getDownloadPath]] == YES) {
+        self.videoURL = [NSURL fileURLWithPath:self.getDownloadPath];
+        self.pauseDownloadButt.enabled = NO;
+        self.pauseDownloadButt.alpha = 0.5;
+        self.dowloadButt.enabled = NO;
+        self.dowloadButt.alpha = 0.5;
+        [self.progressView setProgress:1];
+
+    } else {
+        self.pauseDownloadButt.enabled = NO;
+        self.pauseDownloadButt.alpha = 0.5;
+        self.playButt.enabled = NO;
+        self.playButt.alpha = 0.5;
+        self.deleteButt.enabled = NO;
+        self.deleteButt.alpha = 0.5;
+    }
+    
 }
 
 - (NSString *)getDownloadPath {
@@ -42,21 +60,84 @@
     return [docDir stringByAppendingPathComponent:@"video.mov"];
 }
 
+- (NSString *)getResumeData {
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    return [docDir stringByAppendingPathComponent:@"resumeData.mov"];
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location {
+    if (location) {
+        self.videoURL = [NSURL fileURLWithPath:self.getDownloadPath];
+        [[NSFileManager defaultManager] moveItemAtURL:location toURL:self.videoURL error:nil];
+        self.pauseDownloadButt.enabled = NO;
+        self.pauseDownloadButt.alpha = 0.5;
+        self.playButt.enabled = YES;
+        self.playButt.alpha = 1;
+        self.deleteButt.enabled = YES;
+        self.deleteButt.alpha = 1;
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+    double progress = (double) (totalBytesWritten/1024) / (double) (totalBytesExpectedToWrite/1024);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.progressView setProgress:progress animated:NO];
+    });
+}
+
 - (IBAction)startDownload {
+    self.dowloadButt.enabled = NO;
+    self.dowloadButt.alpha = 0.5;
+    self.pauseDownloadButt.enabled = YES;
+    self.pauseDownloadButt.alpha = 1;
+    self.deleteButt.enabled = YES;
+    self.deleteButt.alpha = 1;
     NSURL *url = [NSURL URLWithString:@"https://dl.dropboxusercontent.com/u/55523423/video.mov"];
-    // todo
+    NSData *data = [NSData dataWithContentsOfFile:[self getResumeData]];
+    if (data != nil) {
+        downloadTask = [session downloadTaskWithResumeData:data];
+    }
+    if (!downloadTask && !self.videoURL && data == nil) {
+        downloadTask = [session downloadTaskWithRequest:[NSURLRequest requestWithURL:url]];
+    }
+    if (downloadTask.state != NSURLSessionTaskStateCompleted) {
+        [downloadTask resume];
+    }
 }
 
 - (IBAction)pauseDownload {
-    // todo
+    [downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+        [resumeData writeToFile:[self getResumeData] atomically:YES];
+    }];
+    self.pauseDownloadButt.enabled = NO;
+    self.pauseDownloadButt.alpha = 0.5;
+    self.dowloadButt.enabled = YES;
+    self.dowloadButt.alpha = 1;
 }
 
 - (IBAction)deleteVideo {
-    // todo
+    [[NSFileManager defaultManager] removeItemAtPath:[self getDownloadPath] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[self getResumeData] error:nil];
+    [downloadTask cancel];
+    [player stop];
+    [self.progressView setProgress:0 animated:NO];
+    self.videoURL = nil;
+    downloadTask = nil;
+    self.pauseDownloadButt.enabled = NO;
+    self.pauseDownloadButt.alpha = 0.5;
+    self.playButt.enabled = NO;
+    self.playButt.alpha = 0.5;
+    self.deleteButt.enabled = NO;
+    self.deleteButt.alpha = 0.5;
+    self.dowloadButt.enabled = YES;
+    self.dowloadButt.alpha = 1;
 }
 
 - (IBAction)playVideo:(id)sender {
-    // todo
+    [player setContentURL:self.videoURL];
+    [player play];
+    self.playButt.enabled = NO;
+    self.playButt.alpha = 0.5;
 }
 
 @end
